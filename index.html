@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PF vs Loan Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --text: #333;
+      --card-bg: #fff;
+      --primary: #2b5876;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --input-border: #ccc;
+      --table-border: #ddd;
+      --table-header: #eef2f3;
+    }
+
+    body.dark {
+      --bg: #1e1e2f;
+      --text: #f0f0f0;
+      --card-bg: #2b2b3d;
+      --primary: #74ebd5;
+      --shadow: rgba(255, 255, 255, 0.05);
+      --input-border: #444;
+      --table-border: #555;
+      --table-header: #333645;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+      color: var(--text);
+      transition: background 0.4s, color 0.4s;
+      position: relative;
+    }
+
+    .dark-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .dark-toggle button {
+      padding: 6px 12px;
+      font-size: 13px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .flex {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .panel {
+      flex: 1 1 300px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px var(--shadow);
+      margin-bottom: 20px;
+      min-width: 300px;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    input, select, button, table {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      font-size: 1rem;
+      background-color: transparent;
+      color: var(--text);
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 12px;
+      font-size: 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      width: 100%;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--table-border);
+      padding: 0.6rem 0.4rem;
+      text-align: right;
+      color: var(--text);
+    }
+
+    th {
+      background: var(--table-header);
+    }
+
+    canvas {
+      max-width: 100%;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="dark-toggle">
+    <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+  </div>
+  <header>
+    <h1>PF vs Loan Simulator</h1>
+    <p>Compare your loan's EMI vs investing that EMI at your savings rate.</p>
+  </header>
+
+  <div class="flex">
+    <div class="panel">
+      <h2>Inputs</h2>
+      <label>Loan Amount (₹)<input type="number" id="loanAmt" placeholder="e.g. 1000000"></label>
+      <label>Period (years)<input type="number" id="years" placeholder="e.g. 5"></label>
+      <label>Interest Rate (%)<input type="number" id="loanRate" placeholder="e.g. 8.5"></label>
+      <label>Processing Fee (%)<input type="number" id="procFee" placeholder="e.g. 1"></label>
+      <label>Savings Rate (%)<input type="number" id="savRate" placeholder="e.g. 7.1"></label>
+      <label>Saving Compounding Periods
+        <select id="compound">
+          <option value="1">Yearly</option>
+          <option value="2">Half Yearly</option>
+          <option value="4">Quarterly</option>
+          <option value="12">Monthly</option>
+        </select>
+      </label>
+      <button id="computeBtn">Compute</button>
+      <p><strong>EMI:</strong> ₹<span id="emi">–</span></p>
+    </div>
+
+    <div class="panel" id="resultPanel" style="display:none">
+      <h2>📊 Result</h2>
+      <h3>You will save ₹<span id="Save">–</span> by choosing <span id="winner">–</span></h3>
+      <p><strong>Interest Paid on Loan:</strong> ₹<span id="intPaid">–</span></p>
+      <p><strong>Interest Earned from SIP:</strong> ₹<span id="intEarnedWithdrawal">–</span></p>
+      <p><strong>Total Savings Increase:</strong> ₹<span id="TotalEarnedWithdrawal">–</span></p>
+      <p><strong>Interest Earned from Loan Investment:</strong> ₹<span id="intEarnedLoan">–</span></p>
+    </div>
+  </div>
+
+  <div class="panel" id="tablePanel" style="display:none">
+    <h2>📅 Your Saving by Years</h2>
+    <table>
+      <thead><tr><th>Year</th><th>Withdrawal (₹)</th><th>Loan (₹)</th></tr></thead>
+      <tbody id="resultTable"></tbody>
+    </table>
+    <canvas id="resultChart"></canvas>
+  </div>
+
+  <script>
+    const darkClass = 'dark';
+    if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add(darkClass);
+
+    function toggleDarkMode() {
+      document.body.classList.toggle(darkClass);
+      localStorage.setItem('darkMode', document.body.classList.contains(darkClass) ? 'enabled' : 'disabled');
+    }
+
+    function toFixedNum(x) {
+      return Math.round((x * 100) / 100).toLocaleString('en-IN');
+    }
+
+    function compute() {
+      const P = parseFloat(document.getElementById('loanAmt').value);
+      const t = parseFloat(document.getElementById('years').value);
+      const iLoan = parseFloat(document.getElementById('loanRate').value) / 100;
+      const fee = parseFloat(document.getElementById('procFee').value) / 100;
+      const iSav = parseFloat(document.getElementById('savRate').value) / 100;
+      const m = parseInt(document.getElementById('compound').value);
+
+      if ([P, t, iLoan, fee, iSav, m].some(isNaN)) {
+        alert("Please fill all inputs correctly.");
+        return;
+      }
+
+      const rLoan = iLoan / 12;
+      const rSav = iSav / m;
+      const emi = P * rLoan * Math.pow(1 + rLoan, 12 * t) / (Math.pow(1 + rLoan, 12 * t) - 1);
+      const totalPaid = emi * t * 12;
+      const intPaid = totalPaid - P;
+
+      const resultTable = document.getElementById('resultTable');
+      resultTable.innerHTML = '';
+      let withdrawalFinal = 0, LoanFinal = 0;
+      const labels = [], withdrawalData = [], loanData = [];
+
+      for (let year = 0; year <= t; year++) {
+        const k = year * m;
+        let withdrawal = ((P * fee) * Math.pow(1 + rSav, k)) + (k === 0 ? 0 : (emi * (12 / m)) * ((Math.pow(1 + rSav, k) - 1) / rSav));
+        let loanBal = P * Math.pow(1 + rSav, k);
+        resultTable.innerHTML += `<tr><td>${year}</td><td>${toFixedNum(withdrawal)}</td><td>${toFixedNum(loanBal)}</td></tr>`;
+
+        if (year === t) {
+          withdrawalFinal = withdrawal;
+          LoanFinal = loanBal;
+        }
+        labels.push(`Year ${year}`);
+        withdrawalData.push(withdrawal);
+        loanData.push(loanBal);
+      }
+
+      document.getElementById('emi').textContent = toFixedNum(emi);
+      document.getElementById('TotalEarnedWithdrawal').textContent = toFixedNum(withdrawalFinal - P);
+      document.getElementById('intPaid').textContent = toFixedNum(intPaid);
+      document.getElementById('intEarnedWithdrawal').textContent = toFixedNum(withdrawalFinal - totalPaid);
+      document.getElementById('intEarnedLoan').textContent = toFixedNum(LoanFinal - P);
+      document.getElementById('Save').textContent = toFixedNum(Math.abs(withdrawalFinal - LoanFinal));
+      document.getElementById('winner').textContent = withdrawalFinal > LoanFinal ? "Withdrawal" : "Loan";
+
+      document.getElementById('resultPanel').style.display = 'block';
+      document.getElementById('tablePanel').style.display = 'block';
+
+      const ctx = document.getElementById('resultChart').getContext('2d');
+      if (window.resultChart && typeof window.resultChart.destroy === 'function') {
+        window.resultChart.destroy();
+      }
+      window.resultChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Withdrawal', data: withdrawalData, backgroundColor: '#74b9ff' },
+            { label: 'Loan', data: loanData, backgroundColor: '#fd79a8' }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('computeBtn').addEventListener('click', compute);
+    });
+  </script>
+</body>
+</html>
