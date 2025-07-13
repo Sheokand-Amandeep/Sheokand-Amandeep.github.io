@@ -1,280 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PF vs Loan Simulator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg: #f4f7fa;
-      --text: #333;
-      --card-bg: #fff;
-      --primary: #2b5876;
-      --shadow: rgba(0, 0, 0, 0.1);
-      --input-border: #ccc;
-      --table-border: #ddd;
-      --table-header: #eef2f3;
-    }
-
-    body.dark {
-      --bg: #1e1e2f;
-      --text: #f0f0f0;
-      --card-bg: #2b2b3d;
-      --primary: #74ebd5;
-      --shadow: rgba(255, 255, 255, 0.05);
-      --input-border: #444;
-      --table-border: #555;
-      --table-header: #333645;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: 20px;
-      color: var(--text);
-      transition: background 0.4s, color 0.4s;
-      position: relative;
-    }
-
-    .dark-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    .dark-toggle button {
-      padding: 6px 12px;
-      font-size: 13px;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .flex {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .panel {
-      flex: 1 1 300px;
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 8px 16px var(--shadow);
-      margin-bottom: 20px;
-      min-width: 300px;
-      transition: background 0.4s, color 0.4s;
-    }
-
-    input, select, button, table {
-      font-family: 'Poppins', sans-serif;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      margin-top: 0.4rem;
-      border-radius: 8px;
-      border: 1px solid var(--input-border);
-      font-size: 1rem;
-      background-color: transparent;
-      color: var(--text);
-    }
-
-    button {
-      margin-top: 1.5rem;
-      padding: 12px;
-      font-size: 1rem;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      width: 100%;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1.5rem;
-      font-size: 0.95rem;
-    }
-
-    th, td {
-      border: 1px solid var(--table-border);
-      padding: 0.6rem 0.4rem;
-      text-align: right;
-      color: var(--text);
-    }
-
-    th {
-      background: var(--table-header);
-    }
-
-    canvas {
-      max-width: 100%;
-      margin-top: 1.5rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Kaleidoscope</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars from canvas */
+        }
+        main {
+            position: relative;
+        }
+        #p5-canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            display: block;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+    </style>
 </head>
-<body>
-  <div class="dark-toggle">
-    <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
-  </div>
-  <header>
-    <h1>PF vs Loan Simulator</h1>
-    <p>Compare your loan's EMI vs investing that EMI at your savings rate.</p>
-  </header>
+<body class="bg-gray-100">
+    <main>
+        <!-- This container will hold the p5.js canvas -->
+        <div id="p5-canvas-container"></div>
 
-  <div class="flex">
-    <div class="panel">
-      <h2>Inputs</h2>
-      <label>Loan Amount (₹)<input type="number" id="loanAmt" placeholder="e.g. 1000000"></label>
-      <label>Period (years)<input type="number" id="years" placeholder="e.g. 5"></label>
-      <label>Interest Rate (%)<input type="number" id="loanRate" placeholder="e.g. 8.5"></label>
-      <label>Processing Fee (%)<input type="number" id="procFee" placeholder="e.g. 1"></label>
-      <label>Savings Rate (%)<input type="number" id="savRate" placeholder="e.g. 7.1"></label>
-      <label>Saving Compounding Periods
-        <select id="compound">
-          <option value="1">Yearly</option>
-          <option value="2">Half Yearly</option>
-          <option value="4">Quarterly</option>
-          <option value="12">Monthly</option>
-        </select>
-      </label>
-      <button id="computeBtn">Compute</button>
-      <p><strong>EMI:</strong> ₹<span id="emi">–</span></p>
-    </div>
+        <!-- UI Controls for the Kaleidoscope -->
+        <div class="controls">
+            <div class="flex items-center gap-3">
+                <label for="symmetry-slider" class="text-sm font-medium text-gray-700">Symmetry</label>
+                <input id="symmetry-slider" type="range" min="2" max="24" value="6" class="w-32">
+                <span id="symmetry-value" class="text-sm font-semibold text-gray-900">6</span>
+            </div>
+            <button id="clear-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors">
+                Clear
+            </button>
+        </div>
+    </main>
 
-    <div class="panel" id="resultPanel" style="display:none">
-      <h2>📊 Result</h2>
-      <h3>You will save ₹<span id="Save">–</span> by choosing <span id="winner">–</span></h3>
-      <p><strong>Interest Paid on Loan:</strong> ₹<span id="intPaid">–</span></p>
-      <p><strong>Interest Earned from SIP:</strong> ₹<span id="intEarnedWithdrawal">–</span></p>
-      <p><strong>Total Savings Increase:</strong> ₹<span id="TotalEarnedWithdrawal">–</span></p>
-      <p><strong>Interest Earned from Loan Investment:</strong> ₹<span id="intEarnedLoan">–</span></p>
-    </div>
-  </div>
+    <script>
+        // --- p5.js Sketch ---
 
-  <div class="panel" id="tablePanel" style="display:none">
-    <h2>📅 Your Saving by Years</h2>
-    <table>
-      <thead><tr><th>Year</th><th>Withdrawal (₹)</th><th>Loan (₹)</th></tr></thead>
-      <tbody id="resultTable"></tbody>
-    </table>
-    <canvas id="resultChart"></canvas>
-  </div>
+        // Global variables for the sketch
+        let symmetry = 6; // Number of symmetrical sections
+        let angle; // Angle of each section
+        let hueValue = 0; // Starting hue for colors
 
-  <script>
-    const darkClass = 'dark';
-    if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add(darkClass);
+        // The main sketch function
+        const sketch = (p) => {
 
-    function toggleDarkMode() {
-      document.body.classList.toggle(darkClass);
-      localStorage.setItem('darkMode', document.body.classList.contains(darkClass) ? 'enabled' : 'disabled');
-    }
+            // setup() runs once when the program starts
+            p.setup = () => {
+                // Create canvas and place it in the container div
+                const canvasContainer = document.getElementById('p5-canvas-container');
+                const canvas = p.createCanvas(p.windowWidth * 0.9, p.windowHeight * 0.9);
+                canvas.parent('p5-canvas-container');
 
-    function toFixedNum(x) {
-      return Math.round((x * 100) / 100).toLocaleString('en-IN');
-    }
+                angle = 360 / symmetry;
+                p.angleMode(p.DEGREES); // Use degrees for rotation
+                p.background(0); // Start with a black background
+                p.colorMode(p.HSB, 360, 100, 100); // Use HSB color model for vibrant colors
+            };
 
-    function compute() {
-      const P = parseFloat(document.getElementById('loanAmt').value);
-      const t = parseFloat(document.getElementById('years').value);
-      const iLoan = parseFloat(document.getElementById('loanRate').value) / 100;
-      const fee = parseFloat(document.getElementById('procFee').value) / 100;
-      const iSav = parseFloat(document.getElementById('savRate').value) / 100;
-      const m = parseInt(document.getElementById('compound').value);
+            // draw() runs continuously in a loop
+            p.draw = () => {
+                // Translate origin to the center of the canvas for symmetrical drawing
+                p.translate(p.width / 2, p.height / 2);
 
-      if ([P, t, iLoan, fee, iSav, m].some(isNaN)) {
-        alert("Please fill all inputs correctly.");
-        return;
-      }
+                // Only draw if the mouse is inside the canvas
+                if (p.mouseX > 0 && p.mouseX < p.width && p.mouseY > 0 && p.mouseY < p.height) {
+                    // Get mouse coordinates relative to the new center origin
+                    let mx = p.mouseX - p.width / 2;
+                    let my = p.mouseY - p.height / 2;
+                    let pmx = p.pmouseX - p.width / 2;
+                    let pmy = p.pmouseY - p.height / 2;
 
-      const rLoan = iLoan / 12;
-      const rSav = iSav / m;
-      const emi = P * rLoan * Math.pow(1 + rLoan, 12 * t) / (Math.pow(1 + rLoan, 12 * t) - 1);
-      const totalPaid = emi * t * 12;
-      const intPaid = totalPaid - P;
+                    // Use mouse speed to determine the stroke weight for a dynamic effect
+                    let speed = p.abs(p.mouseX - p.pmouseX) + p.abs(p.mouseY - p.pmouseY);
+                    p.strokeWeight(p.map(speed, 0, 20, 1, 8, true));
 
-      const resultTable = document.getElementById('resultTable');
-      resultTable.innerHTML = '';
-      let withdrawalFinal = 0, LoanFinal = 0;
-      const labels = [], withdrawalData = [], loanData = [];
+                    // Cycle through hues for a rainbow effect
+                    hueValue = (hueValue + 1) % 360;
+                    p.stroke(hueValue, 80, 100);
 
-      for (let year = 0; year <= t; year++) {
-        const k = year * m;
-        let withdrawal = ((P * fee) * Math.pow(1 + rSav, k)) + (k === 0 ? 0 : (emi * (12 / m)) * ((Math.pow(1 + rSav, k) - 1) / rSav));
-        let loanBal = P * Math.pow(1 + rSav, k);
-        resultTable.innerHTML += `<tr><td>${year}</td><td>${toFixedNum(withdrawal)}</td><td>${toFixedNum(loanBal)}</td></tr>`;
+                    // Loop through each symmetrical section
+                    for (let i = 0; i < symmetry; i++) {
+                        p.rotate(angle);
 
-        if (year === t) {
-          withdrawalFinal = withdrawal;
-          LoanFinal = loanBal;
-        }
-        labels.push(`Year ${year}`);
-        withdrawalData.push(withdrawal);
-        loanData.push(loanBal);
-      }
+                        // Draw the line based on mouse movement
+                        p.line(mx, my, pmx, pmy);
 
-      document.getElementById('emi').textContent = toFixedNum(emi);
-      document.getElementById('TotalEarnedWithdrawal').textContent = toFixedNum(withdrawalFinal - P);
-      document.getElementById('intPaid').textContent = toFixedNum(intPaid);
-      document.getElementById('intEarnedWithdrawal').textContent = toFixedNum(withdrawalFinal - totalPaid);
-      document.getElementById('intEarnedLoan').textContent = toFixedNum(LoanFinal - P);
-      document.getElementById('Save').textContent = toFixedNum(Math.abs(withdrawalFinal - LoanFinal));
-      document.getElementById('winner').textContent = withdrawalFinal > LoanFinal ? "Withdrawal" : "Loan";
+                        // Create the mirrored (kaleidoscope) effect by flipping the y-axis
+                        p.push();
+                        p.scale(1, -1);
+                        p.line(mx, my, pmx, pmy);
+                        p.pop();
+                    }
+                }
+            };
 
-      document.getElementById('resultPanel').style.display = 'block';
-      document.getElementById('tablePanel').style.display = 'block';
+            // This function is called whenever the window is resized
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth * 0.9, p.windowHeight * 0.9);
+                p.background(0); // Clear background on resize
+            };
 
-      const ctx = document.getElementById('resultChart').getContext('2d');
-      if (window.resultChart && typeof window.resultChart.destroy === 'function') {
-        window.resultChart.destroy();
-      }
-      window.resultChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'Withdrawal', data: withdrawalData, backgroundColor: '#74b9ff' },
-            { label: 'Loan', data: loanData, backgroundColor: '#fd79a8' }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'top' } },
-          scales: { y: { beginAtZero: false } }
-        }
-      });
-    }
+            // --- UI Event Handlers ---
+            const symmetrySlider = document.getElementById('symmetry-slider');
+            const symmetryValueSpan = document.getElementById('symmetry-value');
+            const clearButton = document.getElementById('clear-button');
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('computeBtn').addEventListener('click', compute);
-    });
-  </script>
+            // Update symmetry when the slider is moved
+            symmetrySlider.addEventListener('input', (e) => {
+                symmetry = parseInt(e.target.value);
+                angle = 360 / symmetry;
+                symmetryValueSpan.textContent = symmetry;
+                p.background(0); // Clear the canvas when symmetry changes
+            });
+
+            // Clear the canvas when the button is clicked
+            clearButton.addEventListener('click', () => {
+                p.background(0);
+            });
+        };
+
+        // Initialize the p5.js sketch
+        new p5(sketch);
+    </script>
 </body>
 </html>
