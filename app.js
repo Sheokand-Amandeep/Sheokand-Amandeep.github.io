@@ -17,7 +17,7 @@ const checkWinner = () => {
   const hasWinner = winPatterns.some(([a, b, c]) => {
     const value = boxes[a].innerText;
     if (value && value === boxes[b].innerText && value === boxes[c].innerText) {
-      msg.innerText = `Congratulations, Winner is ${value} after ${moveCount} moves!`;
+      msg.innerText = `Congratulations, Winner is ${value}`;
       msgContainer.classList.remove('hide');
       resetBtn.classList.add('hide');
       gameOn = false;
