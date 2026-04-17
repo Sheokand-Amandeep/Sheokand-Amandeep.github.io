@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Quantum Grid",
+    "description": "A high-performance data visualizer.",
+    "tech": ["JS", "WebGL"],
+    "link": "#"
+  },
+  {
+    "title": "Neural Notes",
+    "description": "AI-powered markdown editor.",
+    "tech": ["React", "Node.js"],
+    "link": "#"
+  }
+]

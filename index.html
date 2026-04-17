@@ -1,75 +1,47 @@
-<!DOCTYPE html><html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aman | Portfolio</title><link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"></head>
-<body><header class="header">
-    <div class="container nav">
-        <h2 class="logo">AmanDev</h2>    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amandeep | Portfolio</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="theme-controls">
+      <button id="theme-toggle" title="Toggle Theme">
+        <span class="icon">🌓</span>
+      </button>
     </nav>
-</div>
 
-</header><section id="home" class="hero">
-    <div class="container hero-content">
-        <h1>Hello, I'm <span>Aman</span></h1>
-        <p>Flutter Developer • Programmer • Tech Enthusiast</p>
-        <a href="#projects" class="btn">View My Work</a>
-    </div>
-</section><section id="about" class="about container">
-    <h2>About Me</h2>
-    <p>
-        I am a developer passionate about building useful software and learning new technologies.
-        I enjoy working on Flutter apps, coding projects and exploring modern development tools.
-    </p>
-</section><section id="projects" class="projects container">
-    <h2>Projects</h2><div class="project-grid">
+    <header class="brand-header reveal-fade">
+      <h1 id="user-name">AMANDEEP</h1>
+      <div id="profile-container"></div>
+    </header>
 
-    <div class="project-card">
-        <h3>Expense Tracker</h3>
-        <p>A Flutter app for managing daily expenses with category balance tracking.</p>
-    </div>
+    <main>
+      <section id="about" class="reveal-left" data-section="about"></section>
 
-    <div class="project-card">
-        <h3>Personal Knowledge Hub</h3>
-        <p>An offline-first knowledge system for storing documentation and coding notes.</p>
-    </div>
+      <section id="projects-grid" class="reveal-right">
+        <h2>Featured Projects</h2>
+        <div id="projects-container" class="grid-layout"></div>
+      </section>
 
-    <div class="project-card">
-        <h3>Developer Toolkit</h3>
-        <p>A collection of productivity tools for developers and programmers.</p>
-    </div>
+      <section id="future-plans" class="reveal-fade">
+        <h2>Future Roadmap</h2>
+        <div id="future-container"></div>
+      </section>
 
-</div>
+      <section id="games" class="reveal-left">
+        <h2>Arcade</h2>
+        <p>
+          Bored? Play <a href="games.html">Tic-Tac-Toe</a> or
+          <a href="#">Snake</a>.
+        </p>
+      </section>
+    </main>
 
-</section><section id="skills" class="skills">
-    <div class="container">
-        <h2>Skills</h2>    <div class="skills-grid">
-        <span>Flutter</span>
-        <span>Dart</span>
-        <span>Git</span>
-        <span>JavaScript</span>
-        <span>HTML</span>
-        <span>CSS</span>
-        <span>SQLite</span>
-        <span>Linux</span>
-    </div>
+    <div class="fluid-wave"></div>
 
-</div>
-
-</section><section id="contact" class="contact container">
-    <h2>Contact</h2><p>If you'd like to collaborate or connect, feel free to reach out.</p>
-
-<a class="btn" href="mailto:youremail@example.com">Send Email</a>
-
-</section><footer>
-<p>© 2026 Aman | Built with passion</p>
-</footer><script src="app.js"></script></body>
+    <script src="script.js"></script>
+  </body>
 </html>
